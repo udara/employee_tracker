@@ -36,13 +36,26 @@ async function init()
         department.forEach(row => {
           json_departments_arr.push({'value':`${row.id}`, 'name': `${row.department}`});
         });
-        const {department_id} = await helper.promptAddEmployeeRoles(json_departments_arr);
-        console.log(department_id)
-        //await db.insertEmployeeRole(employee_role);
+        const employee_role_data= await helper.promptAddEmployeeRoles(json_departments_arr);
+        await db.insertEmployeeRole(employee_role_data);
         break;
 
       case 'Add employees':
-        
+        const employee_role = await db.getEmployeeRole();
+        const json_employee_role_arr = [];
+        const manager = await db.getManager();
+        const json_manager_arr = []; 
+
+        employee_role.forEach(row => {
+          json_employee_role_arr.push({'value':`${row.id}`, 'name': `${row.title}`});
+        });
+
+        manager.forEach(row => {
+          json_manager_arr.push({'value':`${row.id}`, 'name': `${row.first_name} ${row.last_name}`});
+        });
+
+        console.log(json_manager_arr);
+
         break;
       
       case 'View Departments':
