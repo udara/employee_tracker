@@ -59,12 +59,14 @@ async function init()
         
         break;
       
-      case 'View Departments':
-        console.log('View Departments');  
+      case 'View departments':
+        const departments = await db.getDepartments();
+        console.table(departments);  
         break;
 
       case 'View roles':
-        console.log('View roles');  
+        const employee_roles = await db.getEmployeeRole();
+        console.table(employee_roles);   
         break;
 
       case 'View employees':
@@ -73,7 +75,19 @@ async function init()
         break;
 
       case 'View employees by manager':
-        console.log('Add Departments');  
+        const list_manager_to_search = await db.getManager();
+        const json_manager_to_search_arr = [];
+        list_manager_to_search.forEach(row => {
+          json_manager_to_search_arr.push({'value':`${row.id}`, 'name': `${row.first_name} ${row.last_name}`});
+        });
+
+        const {manager_id} = await helper.promptgetManager(json_manager_to_search_arr);
+        const manager_name = await db.query(`SELECT CONCAT( first_name, " ", last_name ) AS fullname FROM employee WHERE id = ${manager_id}`);
+        console.log(manager_name);
+        console.log(`Employees reporting to ${manager_name}`);
+
+        //const employees = displayEmployeebyManager(manager_id);
+
         break;
 
       case 'Update employee roles':
@@ -84,7 +98,7 @@ async function init()
         console.log('Add Departments');  
         break;
 
-      case 'Delete Departments':
+      case 'Delete departments':
         console.log('Add Departments');  
         break;
 
