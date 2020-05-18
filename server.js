@@ -44,7 +44,7 @@ async function init()
         const employee_role = await db.getEmployeeRole();
         const json_employee_role_arr = [];
         const manager = await db.getManager();
-        const json_manager_arr = []; 
+        const json_manager_arr = [{'value': null, name:'No Manager'}]; 
 
         employee_role.forEach(row => {
           json_employee_role_arr.push({'value':`${row.id}`, 'name': `${row.title}`});
@@ -54,8 +54,9 @@ async function init()
           json_manager_arr.push({'value':`${row.id}`, 'name': `${row.first_name} ${row.last_name}`});
         });
 
-        console.log(json_manager_arr);
-
+        const employee_data= await helper.promptAddEmployee(json_employee_role_arr,json_manager_arr);
+        await db.insertEmployee(employee_data);
+        
         break;
       
       case 'View Departments':
@@ -68,6 +69,7 @@ async function init()
 
       case 'View employees':
         const employees = await db.displayEmployee();
+        console.table(employees);
         break;
 
       case 'View employees by manager':
