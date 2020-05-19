@@ -25,92 +25,95 @@ async function init()
     
     switch (main_menu_choice) {
       case 'Add Departments':
-      console.log('Add Departments');
+        console.clear();
+        console.log(colors.bgBlue('Add Departments'));
         const {department_name} = await helper.promptAddDepartment();
         await db.insertDepartment(department_name);
         break;
 
-      case 'Add employee roles':
-        const department = await db.getDepartments();
-        const json_departments_arr = [] 
-        department.forEach(row => {
-          json_departments_arr.push({'value':`${row.id}`, 'name': `${row.department}`});
-        });
-        const employee_role_data= await helper.promptAddEmployeeRoles(json_departments_arr);
+      case 'Add Employee Roles':
+        console.clear();
+        console.log(colors.bgBlue('Add Employee Roles'));
+        const employee_role_data= await helper.promptAddEmployeeRoles( await db.getDepartments() );
         await db.insertEmployeeRole(employee_role_data);
         break;
 
-      case 'Add employees':
-        const employee_role = await db.getEmployeeRole();
-        const json_employee_role_arr = [];
-        const manager = await db.getManager();
-        const json_manager_arr = [{'value': null, name:'No Manager'}]; 
-
-        employee_role.forEach(row => {
-          json_employee_role_arr.push({'value':`${row.id}`, 'name': `${row.title}`});
-        });
-
-        manager.forEach(row => {
-          json_manager_arr.push({'value':`${row.id}`, 'name': `${row.first_name} ${row.last_name}`});
-        });
-
-        const employee_data= await helper.promptAddEmployee(json_employee_role_arr,json_manager_arr);
+      case 'Add Employees':
+        console.clear();
+        console.log(colors.bgBlue('Add Employees'));
+        const employee_data= await helper.promptAddEmployee( await db.getEmployeeRole() , await db.getManager());
         await db.insertEmployee(employee_data);
-        
         break;
       
-      case 'View departments':
-        const departments = await db.getDepartments();
-        console.table(departments);  
+      case 'View Departments':
+        console.clear();
+        console.log(colors.bgBlue('View Departments'));
+        console.table( await db.displayDepartments() );
         break;
 
-      case 'View roles':
-        const employee_roles = await db.getEmployeeRole();
-        console.table(employee_roles);   
+      case 'View Roles':
+        console.clear();
+        console.log(colors.bgBlue('View Roles'));
+        console.table( await db.displayEmployeeRole() );   
         break;
 
-      case 'View employees':
-        const employees = await db.displayEmployee();
-        console.table(employees);
+      case 'View Employees':
+        console.clear();
+        console.log(colors.bgBlue('View Employees'));
+        console.table( await db.displayEmployee() );
         break;
 
-      case 'View employees by manager':
-        const list_manager_to_search = await db.getManager();
-        const json_manager_to_search_arr = [];
-        list_manager_to_search.forEach(row => {
-          json_manager_to_search_arr.push({'value':`${row.id}`, 'name': `${row.first_name} ${row.last_name}`});
-        });
-
-        const {manager_id} = await helper.promptgetManager(json_manager_to_search_arr);
-        const manager_name = await db.query(`SELECT CONCAT( first_name, " ", last_name ) AS fullname FROM employee WHERE id = ${manager_id}`);
-        console.log(manager_name);
-        console.log(`Employees reporting to ${manager_name}`);
-
-        //const employees = displayEmployeebyManager(manager_id);
-
+      case 'View Employees by Manager':
+        console.clear();
+        console.log(colors.bgBlue('View Employees by Manager'));
+        const {manager_id} = await helper.promptgetManager( await db.getManager() );
+        console.table( await db.displayEmployeebyManager(manager_id) );
         break;
 
-      case 'Update employee roles':
-        console.log('Add Departments');  
+      case 'Update Employee Roles':
+        console.clear();
+        console.log(colors.bgBlue('Update Employee Roles'));
+        const { employee_id_role_update, new_role_id } = await helper.promptUpdateEmployeeRole(await db.getEmployee() , await db.getEmployeeRole())
+        db.updateEmployeeRole(employee_id_role_update, new_role_id);
+      break;
+
+      case 'Update Employee Manager':
+        console.clear();
+        console.log(colors.bgBlue('Update Employee Manager'));
+        const { employee_id, new_manager_id } = await helper.promptUpdateManager( await db.getEmployee() );
+        db.updateEmployeeManager( employee_id, new_manager_id );
         break;
 
-      case 'Update employee manager':
-        console.log('Add Departments');  
+      case 'Delete Departments':
+        console.clear();
+        console.log(colors.bgBlue('Delete Departments'));
+        const { department_id_to_delete } =  await helper.promptDeleteDepartment( await db.getDepartments() )
+        db.deleteDepartments( department_id_to_delete );
         break;
 
-      case 'Delete departments':
-        console.log('Add Departments');  
+      case 'Delete Employee Roles':
+        console.clear();
+        console.log(colors.bgBlue('Delete Employee Roles'));
+        const { employee_role_id_to_delete } =  await helper.promptDeleteEmpoyeeRole( await db.getEmployeeRole() );
+        db.deleteEmployeeRole( employee_role_id_to_delete );  
         break;
 
-      case 'Delete employee roles':
-        console.log('Add Departments');  
+      case 'Delete Employees':
+        console.clear();
+        console.log(colors.bgBlue('Delete Employee'));  
+        const { employee_id_to_delete } =  await helper.promptDeleteEmpoyee( await db.getEmployee() );
+        db.promptDeleteEmpoyee(employee_id_to_delete);
         break;
 
-      case 'Delete employees':
-        console.log('Add Departments');  
-        break;
+        case 'Calc Department Salaries':
+          console.clear();
+          console.log(colors.bgBlue('Calc Department Salaries'));
+          const { department_id_to_calc_budget } =  await helper.promptCalculateDepartmentSum( await db.getDepartments() );
+          console.table( await db.budgetForSelectedDepartment(department_id_to_calc_budget)); 
+          break;
     
       default:
+        console.clear();
         console.log("Thanks, see you later!n");
         db.close();
         return;
@@ -122,5 +125,5 @@ async function init()
 
   
 }
-
+console.clear();
 init();
